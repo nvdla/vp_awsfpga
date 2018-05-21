@@ -1,0 +1,15 @@
+# ================================================================
+# NVDLA Open Source Project
+# 
+# Copyright(c) 2016 - 2017 NVIDIA Corporation.  Licensed under the
+# NVDLA Open Hardware License; Check \"LICENSE\" which comes with 
+# this distribution for more information.
+# ================================================================
+
+aws s3 mb s3://sqi
+aws s3 mb s3://sqi/nv_small_64/
+aws s3 cp $CL_DIR/build/checkpoints/to_aws/18_04_16-221842.Developer_CL.tar  s3://sqi/nv_small_64/
+aws s3 mb s3://sqi/nv_small_64_log/
+touch LOGS_FILES_GO_HERE.txt
+aws s3 cp  LOGS_FILES_GO_HERE.txt s3://sqi/nv_small_64_log/
+aws ec2 create-fpga-image --name nvdla_small_64_18_04_16_221842 --description nvdla_small_18_04_16_221842  --input-storage-location Bucket=sqi,Key=nv_small_64/18_04_16-221842.Developer_CL.tar --logs-storage-location Bucket=sqi,Key=nv_small_64_log

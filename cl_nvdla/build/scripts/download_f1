@@ -1,0 +1,13 @@
+# ================================================================
+# NVDLA Open Source Project
+# 
+# Copyright(c) 2016 - 2017 NVIDIA Corporation.  Licensed under the
+# NVDLA Open Hardware License; Check \"LICENSE\" which comes with 
+# this distribution for more information.
+# ================================================================
+
+sudo fpga-clear-local-image -S 0
+sudo fpga-describe-local-image -S 0 -H
+sudo fpga-load-local-image -S 0 -I "agfi-0f43c1ea1b624384e"
+sudo fpga-describe-local-image -S 0 -R -H
+sudo rmmod edma-drv && sudo insmod $SDK_DIR/linux_kernel_drivers/edma/edma-drv.ko

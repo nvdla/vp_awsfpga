@@ -1,0 +1,9 @@
+This repository contains some files that are licensed under the Amazon
+Software License, and some files that are licensed under the NVIDIA Open
+NVDLA License and Agreement v1.0.  When editing, redistributing, or
+contributing to this repository, please ensure that you are aware of the
+terms of each component that you are working with.
+
+The Amazon Software License is included in this distribution as
+'LICENSE.asl'; the NVIDIA Open NVDLA License and Agreement v1.0 is included
+in this distribution as 'LICENSE.nvdla'.
