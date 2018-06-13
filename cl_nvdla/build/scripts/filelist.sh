@@ -54,6 +54,16 @@ ip_path=outdir/nv_small/spec/defs
 file_type=vh
 SelecSource ${ip_path} $file_type
 
+export PATH=.:$PATH
+echo "dla_ramgen -m nv_ram_rwsp_8x65" >> ${NV_HW_ROOT}/vmod/rams/fpga/run_small_ram
+echo "dla_ramgen -m nv_ram_rws_256x64" >> ${NV_HW_ROOT}/vmod/rams/fpga/run_small_ram
+cur_path=`pwd`
+cd  ${NV_HW_ROOT}/vmod/rams/fpga
+./run_small_ram
+mkdir -p ${NV_HW_ROOT}/outdir/nv_small/vmod/rams/fpga/small_rams
+mv ${NV_HW_ROOT}/vmod/rams/fpga/*.v ${NV_HW_ROOT}/outdir/nv_small/vmod/rams/fpga/small_rams
+cd ${cur_path}
+
 ip_path=outdir/nv_small/vmod/rams/fpga/small_rams
 file_type=v
 SelecSource ${ip_path} $file_type
