@@ -349,6 +349,7 @@ void cosim_top::ram_ipc_channel()
 void cosim_top::irq_ipc_channel()
 {
     uint32_t data = 0;
+    uint32_t data_pre = 0;
 
     // Make sure the RTL testbench is ready
     sc_core::wait(start_event);
@@ -374,10 +375,11 @@ void cosim_top::irq_ipc_channel()
         set_ev_trigger(EVENT_IRQ_RD);
 
         sc_core::wait(irq_rd_done_event);
-
+        
+        data_pre = data;
         data = irq_read_ack();
 
-        if (data != 0)
+        if (data != data_pre)
         {
             struct irq_trans_payload irq_stat;
             irq_stat.value = data;

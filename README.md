@@ -12,8 +12,9 @@ You can find the latest NVDLA Virtual Platform documentation for AWS FPGA [here]
 
 ## NVIDIA Sample AFI
 
-agfi-0373fee35268723ca
+nv_small: agfi-0373fee35268723ca
+nv_large: agfi-0f541fc533cba53ef
 
 ## EC2 FPGA Hardware and Software Development Kits version
 
-be3d41cb1b6b5db6bc24b577ab1af8d2eb4de102
+v1.4.0

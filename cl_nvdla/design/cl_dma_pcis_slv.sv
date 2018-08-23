@@ -16,6 +16,8 @@
 // Copyright (c) 2009-2017, NVIDIA CORPORATION. All rights reserved.
 // NVIDIA’s contributions are offered under the Amazon Software License
 
+`include "cl_nvdla_defines.vh"
+
 module cl_dma_pcis_slv #(parameter SCRB_MAX_ADDR = 64'h3FFFFFFFF, parameter SCRB_BURST_LEN_MINUS1 = 15, parameter NO_SCRB_INST = 1)
 
 (
@@ -126,10 +128,16 @@ lib_pipe #(.WIDTH(1), .STAGES(4)) SLR2_PIPE_RST_N (.clk(aclk), .rst_n(1'b1), .in
 //---------------------------- 
 // axi interconnect for DDR address decodes 
 //---------------------------- 
-`ifdef NVDLA_CVSRAM_PRESENT
-(* dont_touch = "true" *) axi_interconnect_nvdla_512b AXI_INTERCONNECT ( 
-`else
-(* dont_touch = "true" *) axi_interconnect_nvdla_64b AXI_INTERCONNECT ( 
+`ifdef NVDLA_AXI_WIDTH_256
+	(* dont_touch = "true" *) axi_interconnect_nv_large  AXI_INTERCONNECT ( 
+`elsif NVDLA_AXI_WIDTH_128
+	(* dont_touch = "true" *) axi_interconnect_nvdla_128b AXI_INTERCONNECT ( 
+`else 
+	`ifdef NVDLA_CVSRAM_PRESENT
+		(* dont_touch = "true" *) axi_interconnect_nvdla_64b_cvsram AXI_INTERCONNECT ( 
+	`else
+		(* dont_touch = "true" *) axi_interconnect_nvdla_64b AXI_INTERCONNECT ( 
+	`endif
 `endif
      .INTERCONNECT_ACLK     (aclk)
     ,.INTERCONNECT_ARESETN  (slr1_sync_aresetn)

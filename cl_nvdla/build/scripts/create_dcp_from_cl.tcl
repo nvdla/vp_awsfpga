@@ -13,16 +13,13 @@
 # implied. See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Copyright (c) 2009-2017, NVIDIA CORPORATION. All rights reserved.
-# NVIDIA’s contributions are offered under the Amazon Software License
-
 package require tar
 
 ## Do not edit $TOP
 set TOP top_sp
 
 ## Replace with the name of your module
-set CL_MODULE cl_nvdla  
+set CL_MODULE cl_nvdla
 
 #################################################
 ## Command-line Arguments
@@ -113,37 +110,28 @@ set_msg_config -string {AXI_QUAD_SPI} -suppress
 # may comment them out if they wish to see more information from warning
 # messages.
 set_msg_config -id {Common 17-55}        -suppress
-set_msg_config -id {Designutils 20-1567} -suppress
-set_msg_config -id {IP_Flow 19-2162}     -suppress
-set_msg_config -id {Project 1-498}       -suppress
-set_msg_config -id {Route 35-328}        -suppress
-set_msg_config -id {Vivado 12-508}       -suppress
-set_msg_config -id {Constraints 18-4866} -suppress
-set_msg_config -id {filemgmt 56-12}      -suppress
-set_msg_config -id {Constraints 18-4644} -suppress
-set_msg_config -id {Coretcl 2-64}        -suppress
 set_msg_config -id {Vivado 12-4739}      -suppress
-set_msg_config -id {Vivado 12-5201}      -suppress
+set_msg_config -id {Constraints 18-4866} -suppress
+set_msg_config -id {IP_Flow 19-2162}     -suppress
+set_msg_config -id {Route 35-328}        -suppress
+set_msg_config -id {Vivado 12-1008}      -suppress
+set_msg_config -id {Vivado 12-508}       -suppress
+set_msg_config -id {filemgmt 56-12}      -suppress
 set_msg_config -id {DRC CKLD-1}          -suppress
+set_msg_config -id {DRC CKLD-2}          -suppress
 set_msg_config -id {IP_Flow 19-2248}     -suppress
-set_msg_config -id {Opt 31-155}          -suppress
-set_msg_config -id {Synth 8-115}         -suppress
-set_msg_config -id {Synth 8-3936}        -suppress
-set_msg_config -id {Vivado 12-1023}      -suppress
+set_msg_config -id {Vivado 12-1580}      -suppress
 set_msg_config -id {Constraints 18-550}  -suppress
 set_msg_config -id {Synth 8-3295}        -suppress
 set_msg_config -id {Synth 8-3321}        -suppress
 set_msg_config -id {Synth 8-3331}        -suppress
 set_msg_config -id {Synth 8-3332}        -suppress
+set_msg_config -id {Synth 8-6014}        -suppress
+set_msg_config -id {Timing 38-436}       -suppress
+set_msg_config -id {DRC REQP-1853}       -suppress
 set_msg_config -id {Synth 8-350}         -suppress
 set_msg_config -id {Synth 8-3848}        -suppress
 set_msg_config -id {Synth 8-3917}        -suppress
-set_msg_config -id {Synth 8-6014}        -suppress
-set_msg_config -id {Vivado 12-1580}      -suppress
-set_msg_config -id {Constraints 18-619}  -suppress
-set_msg_config -id {DRC CKLD-2}          -suppress
-set_msg_config -id {DRC REQP-1853}       -suppress
-set_msg_config -id {Timing 38-436}       -suppress
 
 puts "AWS FPGA: ([clock format [clock seconds] -format %T]) Calling the encrypt.tcl.";
 
@@ -204,12 +192,16 @@ source $HDK_SHELL_DIR/build/scripts/step_user.tcl -notrace
 puts "AWS FPGA: ([clock format [clock seconds] -format %T]) Calling aws_gen_clk_constraints.tcl to generate clock constraints from developer's specified recipe.";
 
 source $HDK_SHELL_DIR/build/scripts/aws_gen_clk_constraints.tcl
-
+#################################################################
+#### Do not remove this setting. Need to workaround bug in 2017.4
+#################################################################
+set_param hd.clockRoutingWireReduction false
 ##################################################
 ### CL XPR OOC Synthesis
 ##################################################
 if {${cl.synth}} {
    source -notrace ./synth_${CL_MODULE}.tcl
+   set synth_dcp ${timestamp}.CL.post_synth.dcp
 }
 
 ##################################################
@@ -227,7 +219,7 @@ if {$implement} {
       puts "\nAWS FPGA: ([clock format [clock seconds] -format %T]) - Combining Shell and CL design checkpoints";
       add_files $HDK_SHELL_DIR/build/checkpoints/from_aws/SH_CL_BB_routed.dcp
       add_files $CL_DIR/build/checkpoints/${timestamp}.CL.post_synth.dcp
-      set_property SCOPED_TO_CELLS {CL} [get_files $CL_DIR/build/checkpoints/${timestamp}.CL.post_synth.dcp]
+      set_property SCOPED_TO_CELLS {WRAPPER_INST/CL} [get_files $CL_DIR/build/checkpoints/${timestamp}.CL.post_synth.dcp]
 
       #Read the constraints, note *DO NOT* read cl_clocks_aws (clocks originating from AWS shell)
       read_xdc [ list \
@@ -236,7 +228,7 @@ if {$implement} {
       set_property PROCESSING_ORDER late [get_files cl_pnr_user.xdc]
 
       puts "\nAWS FPGA: ([clock format [clock seconds] -format %T]) - Running link_design";
-      link_design -top $TOP -part [DEVICE_TYPE] -reconfig_partitions {SH CL}
+      link_design -top $TOP -part [DEVICE_TYPE] -reconfig_partitions {WRAPPER_INST/SH WRAPPER_INST/CL}
 
       puts "\nAWS FPGA: ([clock format [clock seconds] -format %T]) - PLATFORM.IMPL==[get_property PLATFORM.IMPL [current_design]]";
       ##################################################
@@ -309,7 +301,11 @@ if {$implement} {
    # This is what will deliver to AWS
    puts "AWS FPGA: ([clock format [clock seconds] -format %T]) - Writing final DCP to to_aws directory.";
 
-   write_checkpoint -force $CL_DIR/build/checkpoints/to_aws/${timestamp}.SH_CL_routed.dcp
+   #writing unencrypted dcp for analysis to checkpoints dir.
+   write_checkpoint -force $CL_DIR/build/checkpoints/${timestamp}.SH_CL_routed.dcp
+
+   #writing encrypted dcp which can be sent to AWS
+   write_checkpoint -encrypt -force $CL_DIR/build/checkpoints/to_aws/${timestamp}.SH_CL_routed.dcp
 
    # Generate debug probes file
    write_debug_probes -force -no_partial_ltxfile -file $CL_DIR/build/checkpoints/${timestamp}.debug_probes.ltx
@@ -328,8 +324,18 @@ puts "AWS FPGA: ([clock format [clock seconds] -format %T]) - Compress files for
 # Create manifest file
 set manifest_file [open "$CL_DIR/build/checkpoints/to_aws/${timestamp}.manifest.txt" w]
 set hash [lindex [split [exec sha256sum $CL_DIR/build/checkpoints/to_aws/${timestamp}.SH_CL_routed.dcp] ] 0]
+set TOOL_VERSION $::env(VIVADO_TOOL_VERSION)
+set vivado_version [version -short]
+set ver_2017_4 2017.4
+puts "vivado_version is $vivado_version\n"
 
+if { [string first  $ver_2017_4 $vivado_version] == 0 } {
+puts $manifest_file "manifest_format_version=2\n"
+puts "in 2017.4"
+} else {
 puts $manifest_file "manifest_format_version=1\n"
+puts "in 2017.1"
+}
 puts $manifest_file "pci_vendor_id=$vendor_id\n"
 puts $manifest_file "pci_device_id=$device_id\n"
 puts $manifest_file "pci_subsystem_id=$subsystem_id\n"
@@ -338,6 +344,9 @@ puts $manifest_file "dcp_hash=$hash\n"
 puts $manifest_file "shell_version=$shell_version\n"
 puts $manifest_file "dcp_file_name=${timestamp}.SH_CL_routed.dcp\n"
 puts $manifest_file "hdk_version=$hdk_version\n"
+if { [string first $ver_2017_4 $vivado_version] == 0} {
+puts $manifest_file "tool_version=v2017.4\n"
+}
 puts $manifest_file "date=$timestamp\n"
 puts $manifest_file "clock_recipe_a=$clock_recipe_a\n"
 puts $manifest_file "clock_recipe_b=$clock_recipe_b\n"
@@ -359,7 +368,7 @@ puts "AWS FPGA: ([clock format [clock seconds] -format %T]) - Finished creating 
 
 if {[string compare $notify_via_sns "1"] == 0} {
   puts "AWS FPGA: ([clock format [clock seconds] -format %T]) - Calling notification script to send e-mail to $env(EMAIL)";
-  exec $env(HDK_COMMON_DIR)/scripts/notify_via_sns.py
+  exec $env(AWS_FPGA_REPO_DIR)/shared/bin/scripts/notify_via_sns.py
 }
 
 puts "AWS FPGA: ([clock format [clock seconds] -format %T]) - Build complete.";

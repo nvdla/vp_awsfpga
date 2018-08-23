@@ -7,6 +7,7 @@
 // ================================================================
 
 // File Name: cl_nvdla_wrap.sv
+`include "cl_nvdla_defines.vh"
 
 module cl_nvdla_wrap
 (
@@ -186,17 +187,25 @@ NV_nvdla nvdla_top (
   ,.nvdla_pwrbus_ram_a_pd           (32'b0)
 ); // nvdla_top
 
-`ifdef NVDLA_CVSRAM_PRESENT
-assign cl_dut_axi_0.awsize = 3'b110;
-assign cl_dut_axi_0.arsize = 3'b110;
+`ifdef NVDLA_AXI_WIDTH_256
+	assign cl_dut_axi_0.awsize = 3'b101;
+	assign cl_dut_axi_0.arsize = 3'b101;
+`elsif NVDLA_AXI_WIDTH_128
+	assign cl_dut_axi_0.awsize = 3'b100;
+	assign cl_dut_axi_0.arsize = 3'b100;
 `else
-assign cl_dut_axi_0.awsize = 3'b011;
-assign cl_dut_axi_0.arsize = 3'b011;
-`endif
+	assign cl_dut_axi_0.awsize = 3'b011;
+	assign cl_dut_axi_0.arsize = 3'b011;
+`endif 
 
 `ifdef NVDLA_CVSRAM_PRESENT
-assign cl_dut_axi_1.awsize = 3'b110;
-assign cl_dut_axi_1.arsize = 3'b110;
+	`ifdef NVDLA_AXI_WIDTH_256
+		assign cl_dut_axi_1.awsize = 3'b101;
+		assign cl_dut_axi_1.arsize = 3'b101;
+	`else 
+		assign cl_dut_axi_1.awsize = 3'b011;
+		assign cl_dut_axi_1.arsize = 3'b011;
+	`endif
 `endif
 
 

@@ -7,6 +7,8 @@
 # ================================================================
 
 rm -rf ./nvdla_file.tcl
+rm -rf ../src_post_encryption
+version=$1
 
 SelecSource(){
 local_folder=$1
@@ -29,11 +31,11 @@ sed '/'$local_file'/d' nvdla_file.tcl > nvdla_file.tcl_temp
 mv nvdla_file.tcl_temp nvdla_file.tcl
 }
 
-ip_path=outdir/nv_small/spec/manual
+ip_path=outdir/$version/spec/manual
 file_type=v
 SelecSource $ip_path $file_type
 
-ip_path=outdir/nv_small/vmod/nvdla
+ip_path=outdir/$version/vmod/nvdla
 file_type=v
 folder_list=`ls ${NV_HW_ROOT}/${ip_path}`
 echo ${folder_list}
@@ -42,33 +44,49 @@ do
 SelecSource ${ip_path}/$folder $file_type
 done
 
-ip_path=outdir/nv_small/vmod/include
+ip_path=outdir/$version/vmod/include
 file_type=vh
 SelecSource ${ip_path} $file_type
 
-ip_path=outdir/nv_small/vmod/vlibs
+ip_path=outdir/$version/vmod/vlibs
 file_type=v
 SelecSource ${ip_path} $file_type
 
-ip_path=outdir/nv_small/spec/defs
+ip_path=outdir/$version/spec/defs
 file_type=vh
 SelecSource ${ip_path} $file_type
 
-export PATH=.:$PATH
-echo "dla_ramgen -m nv_ram_rwsp_8x65" >> ${NV_HW_ROOT}/vmod/rams/fpga/run_small_ram
-echo "dla_ramgen -m nv_ram_rws_256x64" >> ${NV_HW_ROOT}/vmod/rams/fpga/run_small_ram
-cur_path=`pwd`
-cd  ${NV_HW_ROOT}/vmod/rams/fpga
-./run_small_ram
-mkdir -p ${NV_HW_ROOT}/outdir/nv_small/vmod/rams/fpga/small_rams
-mv ${NV_HW_ROOT}/vmod/rams/fpga/*.v ${NV_HW_ROOT}/outdir/nv_small/vmod/rams/fpga/small_rams
-cd ${cur_path}
+#export PATH=.:$PATH
+#echo "dla_ramgen -m nv_ram_rwsp_8x65" >> ${NV_HW_ROOT}/vmod/rams/fpga/run_small_ram
+#echo "dla_ramgen -m nv_ram_rws_256x64" >> ${NV_HW_ROOT}/vmod/rams/fpga/run_small_ram
+#cur_path=`pwd`
+#cd  ${NV_HW_ROOT}/vmod/rams/fpga
+#./run_small_ram
+#mkdir -p ${NV_HW_ROOT}/outdir/$version/vmod/rams/fpga/small_rams
+#mv ${NV_HW_ROOT}/vmod/rams/fpga/*.v ${NV_HW_ROOT}/outdir/$version/vmod/rams/fpga/small_rams
+#cd ${cur_path}
 
-ip_path=outdir/nv_small/vmod/rams/fpga/small_rams
+ip_path=outdir/$version/vmod/rams/fpga/model
 file_type=v
 SelecSource ${ip_path} $file_type
 
+ip_path=outdir/$version/vmod/fifos
+file_type=v
+SelecSource ${ip_path} $file_type
+
+if [ $version == "nv_large" ]
+then
+file_remove_list="NV_NVDLA_CDP_DP_bufferin_tp1.v NV_NVDLA_CVIF_WRITE_IG_arb.v"
+elif [ $version == "nv_medium_1024_full" ]
+then
+file_remove_list="NV_NVDLA_CDP_DP_bufferin_tp1.v"
+elif [ $version == "nv_medium_512" ]
+then
 file_remove_list="NV_NVDLA_SDP_CORE_Y_lut.v NV_NVDLA_SDP_HLS_Y_cvt_top.v NV_NVDLA_SDP_HLS_Y_idx_top.v NV_NVDLA_SDP_HLS_Y_inp_top.v NV_NVDLA_SDP_HLS_Y_int_core.v"
+else 
+file_remove_list="NV_NVDLA_SDP_CORE_Y_lut.v NV_NVDLA_SDP_HLS_Y_cvt_top.v NV_NVDLA_SDP_HLS_Y_idx_top.v NV_NVDLA_SDP_HLS_Y_inp_top.v NV_NVDLA_SDP_HLS_Y_int_core.v"
+fi 
+
 for each_file in $file_remove_list
 do
 RemoveFile $each_file 

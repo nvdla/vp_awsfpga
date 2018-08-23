@@ -98,6 +98,9 @@ read_bd [ list \
 #Read Xilinx interconnection IP
 read_ip [ list \
   $CL_DIR/../common/design/xilinx_ip/axi_interconnect_nvdla_64b/axi_interconnect_nvdla_64b.xci \
+  $CL_DIR/../common/design/xilinx_ip/axi_interconnect_nv_large/axi_interconnect_nv_large.xci \
+  $CL_DIR/../common/design/xilinx_ip/axi_interconnect_nvdla_128b/axi_interconnect_nvdla_128b.xci \
+  $CL_DIR/../common/design/xilinx_ip/axi_interconnect_nvdla_64b_cvsram/axi_interconnect_nvdla_64b_cvsram.xci \
   $CL_DIR/../common/design/xilinx_ip/axi_apb_bridge_0/axi_apb_bridge_0.xci 
 ]
 
@@ -128,8 +131,9 @@ set_property PROCESSING_ORDER EARLY  [get_files cl_clocks_aws.xdc]
 puts "AWS FPGA: ([clock format [clock seconds] -format %T]) Start design synthesis.";
 
 update_compile_order -fileset sources_1
+#-verilog_define NV_LARGE | NV_MEDIUM_1024_FULL | NV_MEDIUM_512 |  NV_SMALL_256_FULL |  NV_SMALL_256 |  NV_SMALL
 puts "\nRunning synth_design for $CL_MODULE $CL_DIR/build/scripts \[[clock format [clock seconds] -format {%a %b %d %H:%M:%S %Y}]\]"
-eval [concat synth_design -top $CL_MODULE -verilog_define XSDB_SLV_DIS -verilog_define  FPGA -verilog_define SYNTHESIS -verilog_define DESIGNWARE_NOEXIST -verilog_define VLIB_BYPASS_POWER_CG -verilog_define NV_FPGA_SYSTEM -verilog_define NV_FPGA_FIFOGEN  -verilog_define NV_FPGA_UNIT -part [DEVICE_TYPE] -mode out_of_context $synth_options -directive $synth_directive]
+eval [concat synth_design -top $CL_MODULE -verilog_define XSDB_SLV_DIS -verilog_define  FPGA -verilog_define SYNTHESIS -verilog_define DESIGNWARE_NOEXIST -verilog_define VLIB_BYPASS_POWER_CG -verilog_define NV_FPGA_SYSTEM -verilog_define NV_FPGA_FIFOGEN  -verilog_define NV_FPGA_UNIT -verilog_define NV_LARGE  -part [DEVICE_TYPE] -mode out_of_context $synth_options -directive $synth_directive]
 
 set failval [catch {exec grep "FAIL" failfast.csv}]
 if { $failval==0 } {

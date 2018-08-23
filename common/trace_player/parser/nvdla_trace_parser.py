@@ -29,7 +29,11 @@ class TraceParser(object):
     re_result_checker_command           = re.compile(r'^\s*(?P<kind>(check_crc|check_file|check_nothing))\s*\(\s*(?P<sync_id>\w+)\s*(,\s*(?P<memory_type>\w+)\s*,\s*(?P<base_addr>0x[0-9a-fA-F]+)\s*,\s*(?P<size>(0x[0-9a-fA-F]+)|(\d+))\s*,\s*((?P<golden_crc>0x[0-9a-fA-F]+)|"(?P<golden_file_path>[\w\.\/]+)")\s*)?\)\s*;\s*(\/\/.*)*$')
     re_memory_model_command             = re.compile(r'^\s*(?P<kind>(mem_load|mem_init))\s*\(\s*(?P<memory_type>\w+)\s*,\s*(?P<base_addr>0x[0-9a-fA-F]+)\s*,\s*("(?P<file_path>[\w\.\/]+)"|(?P<size>(0x[0-9a-fA-F]+)|(\d+)))\s*(,\s*(?P<pattern>\w+)\s*)?\)\s*;\s*(\/\/.*)*$')
     re_sequence_command_poll_reg        = re.compile(r'^\s*(?P<kind>poll_reg_equal)\s*\(\s*(?P<name>[\w\.]+)\s*,\s*(?P<value>(\w+|\d+|0x[0-9a-fA-F]+))\s*\)\s*;\s*(\/\/.*)*$')
-    
+
+    re_memory_release_command           = re.compile (r'^\s*(?P<kind>(mem_release))\s*\(\s*(?P<memory_type>\w+)\s*,\s*(?P<base_addr>0x[0-9a-fA-F]+)\s*,\s*(?P<sync_id>\w+)\s*\)\s*;\s*(\/\/.*)*$')
+    re_memory_reserve_command           = re.compile (r'^\s*(?P<kind>(mem_reserve))\s*\(\s*(?P<memory_type>\w+)\s*,\s*(?P<base_addr>0x[0-9a-fA-F]+)\s*,\s*(?P<size>0x[0-9a-fA-F]+)\s*(,\s*(?P<sync_id>\w+)\s*\)\s*;|\);)\s*(\/\/.*)*$')
+
+#    re_memory_reserve_command           = re.compile (r'^\s*(?P<kind>(mem_reserve))\s*\(\s*(?P<memory_type>\w+)\s*,\s*(?P<base_addr>0x[0-9a-fA-F]+)\s*,\s*(?P<size>(0x[0-9a-fA-F]+)\s*,\s*(?P<sync_id>\w+)\s*\)\s*;\s*(\/\/.*)*$')
     #mem_load ( sec_mem, 0x8000, "python/over/perl.dat"); 
     #mem_init ( pri_mem, 0x2000, "python/over/perl.dat", RANDOM);
     #mem_init ( sec_mem, 0x5000, 0x2000, ALL_ZERO); 
@@ -107,7 +111,7 @@ class TraceParser(object):
                 print (m.groupdict())
                 if m.group('intr_id') is not None:
 #f_ic_cmd.write("MULTI_SHOT %s %s\n" % (m.group('intr_id').upper(), m.group('sync_id')))
-                    f_c_cmd.write("\ttrace_player_thread_push_cmd_intr_notify(NVDLA_GLB_S_INTR_STATUS_0_%s_DONE_STATUS%s_FIELD, \"%s\");\n" % ( m.group('intr_id')[0:-2], m.group('intr_id')[-1], m.group('sync_id') ) )
+                    f_c_cmd.write("\ttrace_player_thread_push_cmd_intr_notify(NVDLA_GLB_S_INTR_STATUS_0_%s_DONE_STATUS%s_FIELD, \"%s\");\n" % ( m.group('intr_id')[0:-2].upper(), m.group('intr_id')[-1], m.group('sync_id') ) )
                 else:
 #f_ic_cmd.write("SINGLE_SHOT NA %s\n" % (m.group('sync_id')))
                     f_c_cmd.write("\ttrace_player_thread_push_cmd_intr_notify(0xFFFFFFFF, \"%s\");\n" % ( m.group('sync_id') ) )
@@ -139,6 +143,8 @@ class TraceParser(object):
                 if "mem_load" == m.group('kind').lower():
 #f_mm_cmd.write("%s %s %X 0 NA %s\n" % (m.group('kind').upper(), m.group('memory_type').upper(), int(m.group('base_addr'),0), os.path.join(trace_dir, m.group('file_path')) ))
                     f_c_cmd.write("\ttrace_player_thread_push_cmd_%s(\"%s\", 0x%X, \"%s\");\n" % (m.group('kind'), m.group('memory_type').upper(), int(m.group('base_addr'),0), os.path.join(trace_dir, m.group('file_path')) ))
+                elif "mem_release" == m.group('kind').lower():
+                    f_c_cmd.write("\ttrace_player_thread_push_cmd_%s(\"%s\", 0x%X);\n" % (m.group('kind'), m.group('memory_type').upper(), int(m.group('base_addr'),0)) )
                 elif "mem_init" == m.group('kind').lower():
                     if m.group('size') is not None:
                         ## Initialized memory by pattern
@@ -155,6 +161,15 @@ class TraceParser(object):
                 print (m.groupdict())
 #f_seq_cmd.write("%s %s NA %X NA\n" % ( m.group('kind').upper(), ' '.join(m.group('name').split('.')), int(m.group('value'),0) ) )
                 f_c_cmd.write("\ttrace_player_thread_push_cmd_%s(\"%s\", %s, 0x%X);\n" % ( m.group('kind'), m.group('name').split(".")[0], m.group('name').replace(".", "_"), int(m.group('value'),0) ) )
+
+                continue
+            m = self.re_memory_release_command.match(line)
+            if m:
+                #print (m.groupdict())
+                #f_c_cmd.write("\ttrace_player_thread_push_cmd_%s(\"%s\", 0x%X, \"%s\");\n" % (m.group('kind'), m.group('memory_type').upper(), int(m.group('base_addr'),0),m.group('sync_id')) )
+                continue
+            m = self.re_memory_reserve_command.match(line)
+            if m:
                 continue
             raise Exception("Unregconized line:\n%s" % line)
 #f_seq_cmd.close()

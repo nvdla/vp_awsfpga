@@ -23,7 +23,7 @@
 
 typedef void (*PREPARE_CMD_FUNC)(void);
 
-#define TRACE_TEST_TIMEOUT_SEC 120
+#define TRACE_TEST_TIMEOUT_SEC 1200
 
 static int stop_on_error = 1;
 static int wait_interval = 1;

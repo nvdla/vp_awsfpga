@@ -49,6 +49,7 @@ extern pci_bar_handle_t pci_bar_handle_pcis;
 
 #define SIZE_UINT32 2
 #define SIZE_UINT64 3
+#define SIZE_UINT8 0
 
 #define CFG_RESET_ADDR      (0x14)
 
@@ -101,6 +102,13 @@ extern pci_bar_handle_t pci_bar_handle_pcis;
                 fpga_pci_poke(pci_bar_handle_pcis, addr, data); \
             } else if (size == SIZE_UINT64) { \
                 fpga_pci_poke64(pci_bar_handle_pcis, addr, data); \
+            } else if (size == SIZE_UINT8) { \
+                int addr_offset = addr & 0x3; \
+                uint32_t mem_temp; \
+                fpga_pci_peek(pci_bar_handle_pcis, addr&0xfffffffc, (uint32_t*)(&mem_temp)); \
+		/*log_printf("Addr=0x%x ,Data=0x%x, rw=r",addr, mem_temp);*/ \
+                memcpy((uint8_t*)(&mem_temp) + addr_offset, (uint8_t *)(&data), 1); \
+                fpga_pci_poke(pci_bar_handle_pcis, addr&0xfffffffc, (uint32_t)mem_temp); \
             } else { \
                 log_printf("Unsupported size: %d, only support %d and %d!\n", size, SIZE_UINT32, SIZE_UINT64); \
                 assert(0); \
@@ -118,7 +126,12 @@ extern pci_bar_handle_t pci_bar_handle_pcis;
                 fpga_pci_peek(pci_bar_handle_pcis, addr, (uint32_t*)data); \
             } else if (size == SIZE_UINT64) { \
                 fpga_pci_peek64(pci_bar_handle_pcis, addr, data); \
-            } else { \
+            } else if (size == SIZE_UINT8) { \
+                int addr_offset= addr & 0x3; \
+                uint32_t mem_temp; \
+                fpga_pci_peek(pci_bar_handle_pcis, addr&0xfffffffc, (uint32_t*)(&mem_temp)); \
+                *(uint32_t *)data = *(uint8_t *)((uint8_t *)&mem_temp + addr_offset); \
+            }else { \
                 log_printf("Unsupported size: %d, only support %d and %d!\n", size, SIZE_UINT32, SIZE_UINT64); \
                 assert(0); \
             } \

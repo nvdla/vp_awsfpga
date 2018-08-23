@@ -38,5 +38,27 @@
 `define VLIB_BYPASS_POWER_CG
 `define NV_FPGA_UNIT
 `define NV_FPGA_FIFOGEN
+`ifdef NV_LARGE
+`define NVDLA_CVSRAM_PRESENT
+`define NVDLA_AXI_WIDTH_256
+`endif
+`ifdef NV_MEDIUM_1024_FULL
+`define NVDLA_CVSRAM_PRESENT
+`define NVDLA_AXI_WIDTH_256
+`endif
+`ifdef NV_MEDIUM_512
+`define NVDLA_AXI_WIDTH_128
+`endif
+`ifdef NV_SMALL_256_FULL
+`define NVDLA_CVSRAM_PRESENT
+`define NVDLA_AXI_WIDTH_64
+`endif
+`ifdef NV_SMALL_256
+`define NVDLA_AXI_WIDTH_64
+`endif
+`ifdef NV_SMALL
+`define NVDLA_AXI_WIDTH_64
+`endif
+
 `endif
 

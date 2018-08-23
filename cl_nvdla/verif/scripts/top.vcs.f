@@ -52,6 +52,7 @@ ${CL_ROOT}/design/cl_nvdla.sv
 ${CL_ROOT}/design/cl_nvdla_wrap.sv
 
 ${CL_COMMON_ROOT}/design/xilinx_ip/axi_interconnect_nvdla_64b/axi_interconnect_nvdla_64b_sim_netlist.v
+${CL_COMMON_ROOT}/design/xilinx_ip/axi_interconnect_nv_large/axi_interconnect_nv_large_sim_netlist.v
 ${CL_COMMON_ROOT}/design/xilinx_ip/axi_apb_bridge_0/axi_apb_bridge_0_sim_netlist.v
 ${CL_COMMON_ROOT}/design/xilinx_ip/axi_dwidth_converter_512b_to_64b/axi_dwidth_converter_512b_to_64b_sim_netlist.v
 ${CL_COMMON_ROOT}/design/xilinx_ip/axi_protocol_converter_axi_to_axil/axi_protocol_converter_axi_to_axil_sim_netlist.v
@@ -88,11 +89,33 @@ ${CL_COMMON_ROOT}/design/transactors/cfg/cl_cfgreg.sv
 -y ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/nvdla/cfgrom
 
 -y ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/vlibs
+-y ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos
 
 #-y ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/rams
 #-y ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/rams/model
 #-y ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/rams/synth
--y ${NVDLA_HW_ROOT}/vmod/rams/fpga/small_rams
+-y ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/rams/fpga/model
+
+
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_CDMA_WT_8ATMM_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_CDP_DP_data_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_CDP_DP_intpinfo_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_CDP_DP_sumpd_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_CDP_RDMA_lat_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_CDP_RDMA_ro_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_CDP_WDMA_dat_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_PDP_RDMA_lat_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_PDP_RDMA_ro_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_PDP_SDPIN_ro_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_PDP_WDMA_DAT_fifo.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_SDP_BRDMA_cq_lib.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_SDP_BRDMA_lat_fifo_lib.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_SDP_ERDMA_cq_lib.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_SDP_ERDMA_lat_fifo_lib.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_SDP_MRDMA_EG_lat_fifo_lib.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_SDP_MRDMA_cq_lib.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_SDP_NRDMA_cq_lib.v
+${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/fifos/NV_NVDLA_SDP_NRDMA_lat_fifo_lib.v
 
 ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/vlibs/nv_assert_no_x.vlib
 ${NVDLA_HW_ROOT}/outdir/${NVDLA_HW_PROJECT}/vmod/vlibs/NV_DW02_tree.v

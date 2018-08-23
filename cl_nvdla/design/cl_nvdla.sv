@@ -69,8 +69,17 @@ axi_bus_t sh_cl_dma_pcis_bus();
 axi_bus_t sh_cl_dma_pcis_q();
 // keep below nvdla_axi_0/1 i/f same as nvdla configuration. Note: nvdla, axi_data_width=512,axi_len_width=4 
 `ifdef NVDLA_CVSRAM_PRESENT
-axi_bus_t #(.AWS_FPGA_AXI_BUS_DATA_WIDTH(512), .AWS_FPGA_AXI_BUS_ID_WIDTH(8), .AWS_FPGA_AXI_BUS_ADDR_WIDTH(64), .AWS_FPGA_AXI_BUS_LEN_WIDTH(4)) nvdla_dbb_axi_bus();
-axi_bus_t #(.AWS_FPGA_AXI_BUS_DATA_WIDTH(512), .AWS_FPGA_AXI_BUS_ID_WIDTH(8), .AWS_FPGA_AXI_BUS_ADDR_WIDTH(64), .AWS_FPGA_AXI_BUS_LEN_WIDTH(4)) nvdla_cvsram_axi_bus();
+`ifdef NVDLA_AXI_WIDTH_256
+axi_bus_t #(.AWS_FPGA_AXI_BUS_DATA_WIDTH(256), .AWS_FPGA_AXI_BUS_ID_WIDTH(8), .AWS_FPGA_AXI_BUS_ADDR_WIDTH(64), .AWS_FPGA_AXI_BUS_LEN_WIDTH(4)) nvdla_cvsram_axi_bus();
+`else
+axi_bus_t #(.AWS_FPGA_AXI_BUS_DATA_WIDTH(64), .AWS_FPGA_AXI_BUS_ID_WIDTH(8), .AWS_FPGA_AXI_BUS_ADDR_WIDTH(64), .AWS_FPGA_AXI_BUS_LEN_WIDTH(4)) nvdla_cvsram_axi_bus();
+`endif
+`endif
+
+`ifdef NVDLA_AXI_WIDTH_256
+axi_bus_t #(.AWS_FPGA_AXI_BUS_DATA_WIDTH(256), .AWS_FPGA_AXI_BUS_ID_WIDTH(8), .AWS_FPGA_AXI_BUS_ADDR_WIDTH(64), .AWS_FPGA_AXI_BUS_LEN_WIDTH(4)) nvdla_dbb_axi_bus();
+`elsif NVDLA_AXI_WIDTH_128 
+axi_bus_t #(.AWS_FPGA_AXI_BUS_DATA_WIDTH(128), .AWS_FPGA_AXI_BUS_ID_WIDTH(8), .AWS_FPGA_AXI_BUS_ADDR_WIDTH(64), .AWS_FPGA_AXI_BUS_LEN_WIDTH(4)) nvdla_dbb_axi_bus();
 `else
 axi_bus_t #(.AWS_FPGA_AXI_BUS_DATA_WIDTH(64), .AWS_FPGA_AXI_BUS_ID_WIDTH(8), .AWS_FPGA_AXI_BUS_ADDR_WIDTH(64), .AWS_FPGA_AXI_BUS_LEN_WIDTH(4)) nvdla_dbb_axi_bus();
 `endif
