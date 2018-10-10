@@ -1,0 +1,4 @@
+cdp_8x8x64_lrn9_int8_0
+dc_8x16x128_3x3x128x32_int8
+img_51x96x4_1x10x4x32_R8G8B8A8_int8_0
+pdp_8x8x64_2x2_ave_int8_0
