@@ -83,6 +83,10 @@ file_remove_list="NV_NVDLA_CDP_DP_bufferin_tp1.v"
 elif [ $version == "nv_medium_512" ]
 then
 file_remove_list="NV_NVDLA_SDP_CORE_Y_lut.v NV_NVDLA_SDP_HLS_Y_cvt_top.v NV_NVDLA_SDP_HLS_Y_idx_top.v NV_NVDLA_SDP_HLS_Y_inp_top.v NV_NVDLA_SDP_HLS_Y_int_core.v"
+elif [ $version == "nv_small_256_full" ]
+then
+#file_remove_list="NV_NVDLA_SDP_CORE_Y_lut.v NV_NVDLA_SDP_HLS_Y_idx_top.v NV_NVDLA_SDP_HLS_Y_inp_top.v"
+file_remove_list=""
 else 
 file_remove_list="NV_NVDLA_SDP_CORE_Y_lut.v NV_NVDLA_SDP_HLS_Y_cvt_top.v NV_NVDLA_SDP_HLS_Y_idx_top.v NV_NVDLA_SDP_HLS_Y_inp_top.v NV_NVDLA_SDP_HLS_Y_int_core.v"
 fi 
